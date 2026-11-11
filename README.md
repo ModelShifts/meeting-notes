@@ -1,89 +1,80 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="meeting-notes" width="100%">
+  <img src="assets/banner.svg" alt="meeting-notes by Modelshifts" width="100%">
 </p>
 
-<p align="center"><em>Turn a meeting recording in English, Chinese or both into a transcript, summary and action items.</em></p>
+<p align="center"><strong>A recording goes in. A transcript, a summary and a list of action items come out — each item with an owner and a due date when one was said.</strong></p>
 
 <p align="center">
+  <a href="https://github.com/ModelShifts/meeting-notes/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/ModelShifts/meeting-notes/ci.yml?branch=main&label=CI&style=flat-square&color=8a3a24"></a>
   <img alt="Status: v1" src="https://img.shields.io/badge/status-v1-8a3a24?style=flat-square">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1c1a17?style=flat-square">
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-1c1a17?style=flat-square">
   <img alt="Backends: API or Hugging Face" src="https://img.shields.io/badge/backends-API%20%7C%20Hugging%20Face-1c1a17?style=flat-square">
 </p>
 
----
-
-## Features
-
-All five features below work in v1. See [Limitations](#limitations) for what they do not cover yet.
-
-- **Mixed-language transcription**: English, Chinese, or both in the same sentence.
-- **Speaker labels**: who said what, with timestamps.
-- **Summary**: the decisions and key points in a few lines.
-- **Action items**: each with an owner and a due date when one was mentioned.
-- **Export**: Markdown, JSON and subtitles (SRT).
+<p align="center">
+  <img src="assets/demo.gif" alt="Web demo on a synthetic mixed Chinese and English meeting: a transcript appears with two speaker labels and a timeline, then a summary and three action items, each with an owner and a due date." width="100%">
+</p>
+<p align="center"><sub>Web demo on a synthetic mixed-language meeting (<a href="assets/demo.mp4">MP4</a>). The recording replays results computed by faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M) on CPU.</sub></p>
 
 <p align="center">
-  <img src="assets/demo.gif" alt="Web demo: a synthetic mixed Chinese and English meeting is selected, the transcript appears with two speaker labels and a timeline, and the summary and action items are listed" width="100%">
+  <img src="assets/results.svg" alt="Evaluation highlights: 10 of 10 action items found; 10 of 10 owners right; 9 of 10 due dates right." width="100%">
 </p>
-<p align="center"><sub>Web demo on a synthetic meeting (<a href="assets/demo.mp4">MP4</a>). Results in the recording were computed earlier on a CPU by faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M GGUF behind a local llama-cpp-python server, API backend), with a general list of meeting terms in `MS_STT_HOTWORDS`, and loaded from the demo's result cache.</sub></p>
 
-## Architecture
+## The problem
 
-```mermaid
-%%{init: {"theme":"base","flowchart":{"curve":"basis","wrappingWidth":260},"themeVariables":{"fontFamily":"Georgia, Times New Roman, serif","fontSize":"14px","primaryColor":"#f3efe6","primaryTextColor":"#1c1a17","primaryBorderColor":"#1c1a17","lineColor":"#1c1a17","clusterBkg":"#faf7f0","clusterBorder":"#8a3a24","titleColor":"#8a3a24","edgeLabelBackground":"#f3efe6"}}}%%
-flowchart TB
-  A["Recording<br/>mp3 · m4a · wav"]:::ink --> N["Normalize audio"]:::ink
-  N --> T["Transcribe<br/>EN · ZH · mixed"]:::ink
-  N --> SP["Speaker labels"]:::ink
-  T --> M["Merge<br/>timestamped transcript"]:::ink
-  SP --> M
-  M --> S["Summarize +<br/>extract action items"]:::ink
-  S --> O["Markdown · JSON · SRT"]:::ink
-  subgraph BK["Backend · pick one"]
-    direction LR
-    BKA["<b>(a) Your API key</b><br/>OpenAI-compatible<br/>speech + LLM APIs"]:::rust
-    BKH["<b>(b) Hugging Face</b><br/>whisper-large-v3 · Qwen2.5-7B-Instruct"]:::rust
-  end
-  DZ["<b>Speaker models</b><br/>sherpa-onnx (default)<br/>pyannote 3.1 (optional)"]:::rust
-  BK -.-> T
-  BK -.-> S
-  DZ -.-> SP
+Imagine a weekly standup recorded in a mix of English and Chinese. Afterwards someone listens again to write down who said they would do what, and by when. A missed “Friday” or a task given to the wrong person is easy to let through.
 
-  classDef cl fill:#faf7f0,stroke:#8a3a24,stroke-dasharray:4 3,color:#8a3a24;
-  classDef ink fill:#f3efe6,stroke:#1c1a17,color:#1c1a17,stroke-width:1px;
-  classDef rust fill:#f3efe6,stroke:#8a3a24,color:#8a3a24,stroke-width:1.5px;
-```
+The useful result is not a transcript alone. It is a list of action items — each with an owner and a due date when one was said — that a person can check against the words.
 
-### Two interchangeable backends
+## How it works
 
-Pick one with `MS_BACKEND` in `.env`. The rest of the pipeline does not change.
+The pipeline is five steps.
 
-| | (a) Bring your own API key | (b) Open-source on Hugging Face |
-|---|---|---|
-| **What** | Any OpenAI-compatible endpoint | Open models, run locally |
-| **Set** | `MS_BACKEND=api`, `MS_API_BASE`, `MS_API_KEY`, `MS_MODEL` | `MS_BACKEND=hf`, optionally `MS_HF_MODEL` |
-| **Transcription** | `MS_STT_MODEL` on an `/audio/transcriptions` endpoint; if empty, local faster-whisper | faster-whisper, `MS_WHISPER_MODEL` |
-| **Good for** | Fastest start, strongest hosted models | Data stays on your machines, no per-call cost |
+1. A recording comes in (mp3, m4a, wav, or a video file ffmpeg can read).
+2. The audio is transcribed, in English, Chinese, or both in the same sentence.
+3. Speaker labels are assigned locally — who said what, with timestamps.
+4. A model writes a short summary and a list of action items. Each item has an owner and a due date when one was mentioned, and must quote a transcript line; items whose quote is not found are dropped.
+5. You get Markdown, JSON and subtitles (SRT).
 
-Speaker labels always run locally with sherpa-onnx, which needs no account or token. The gated pyannote pipeline can be used instead (see below).
+<p align="center">
+  <img src="assets/pipeline.svg" alt="Pipeline: a recording is transcribed (English, Chinese, or mixed); speaker labels are assigned locally; a model writes a summary and action items, each with an owner and a due date when one was said; the result is Markdown, JSON and SRT. The same pipeline runs on an OpenAI-compatible API or on open models from Hugging Face." width="100%">
+</p>
+<p align="center"><sub>The same five steps, whether the backend is your API or open models on your own machine. Speaker labels always run locally.</sub></p>
 
-**Default open-source models**
+One of the samples, before and after:
 
-| Model | Used for | License |
-|---|---|---|
-| [`openai/whisper-large-v3`](https://huggingface.co/openai/whisper-large-v3) | transcription, run through the CTranslate2 copy [`Systran/faster-whisper-large-v3`](https://huggingface.co/Systran/faster-whisper-large-v3) (MIT) | Apache-2.0 |
-| [`openai/whisper-large-v3-turbo`](https://huggingface.co/openai/whisper-large-v3-turbo) | faster transcription (`MS_WHISPER_MODEL=large-v3-turbo`) | MIT |
-| [pyannote segmentation 3.0](https://huggingface.co/pyannote/segmentation-3.0), ONNX copy from [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx/releases/tag/speaker-segmentation-models) | speaker turns (default, downloaded from GitHub, no token) | MIT |
-| [3D-Speaker CAM++ zh/en](https://github.com/k2-fsa/sherpa-onnx/releases/tag/speaker-recongition-models) | voice embeddings for grouping turns by speaker (default) | Apache-2.0 |
-| [`pyannote/speaker-diarization-3.1`](https://huggingface.co/pyannote/speaker-diarization-3.1) | speaker labels, optional (gated: accept terms on Hugging Face, set `HF_TOKEN`) | MIT |
-| [`Qwen/Qwen2.5-7B-Instruct`](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) | summary and action items | Apache-2.0 |
+<p align="center">
+  <img src="assets/before-after.png" alt="Left: the transcript of sprint-planning-mixed.wav, a synthetic mixed Chinese and English meeting, with two speaker labels and a timeline. Right: the notes — three action items found, all three with the right owner and due date." width="100%">
+</p>
+<p align="center"><sub>Synthetic meeting <code>sprint-planning-mixed.wav</code>. 3/3 action items, owners and dues right. Measured by <a href="scripts/evaluate.py"><code>scripts/evaluate.py</code></a>.</sub></p>
 
-On a machine without a GPU, `MS_WHISPER_MODEL=large-v3-turbo` (about 7 GB of RAM) and the 7B model as a 4-bit GGUF behind a local server (about 6.5 GB, see [Using the API backend](#using-the-api-backend)) run at a few minutes per short meeting. With less memory, use `MS_WHISPER_MODEL=small` and `MS_HF_MODEL=Qwen/Qwen2.5-1.5B-Instruct`, which make more mistakes.
+## Results
+
+On three synthetic meetings — one English, one Chinese, and one that mixes both in the same sentences — the API backend with faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M) found **10 of 10 action items**, with **10/10 owners** right and **9/10 due dates** right. Precision was **10/10** (no extra items). Transcript error was CER 2.0% (Chinese), MER 1.1% (mixed) and WER 0.6% (English). Speakers were 2/2 on every sample, with 99%, 97% and 96% of speech time given the right label.
+
+The one due-date miss is on `weekly-sync-en.wav`: the item “Ask the design team for the new pictures for the app store” came back with no due date, against the scripted “today.” On the Chinese meeting, one of two scripted decisions was listed (1/2); the other two meetings listed every scripted decision (1/1, 1/1).
+
+| Sample | Lang | Transcript | Speakers | Items | Owner | Due | Precision | Time (s) | Notes |
+|---|---|---|---|---|---|---|---|---|---|
+| design-review-zh.wav | zh | CER 2.0% | 2/2 (99%) | 3/3 | 3/3 | 3/3 | 3/3 | 93 | decisions 1/2 |
+| sprint-planning-mixed.wav | mixed | MER 1.1% | 2/2 (97%) | 3/3 | 3/3 | 3/3 | 3/3 | 101 | — |
+| weekly-sync-en.wav | en | WER 0.6% | 2/2 (96%) | 4/4 | 4/4 | 3/4 | 4/4 | 191 | due None vs “today” |
+| **All** | | | | **10/10** | **10/10** | **9/10** | **10/10** | **93–191** | |
+
+**Methodology.** Three synthetic meetings (Kokoro TTS, two speakers each), ten scripted action items in total. All content is fictional. An item counts as found when the notes list a matching task whose quote aligns to a transcript line; owner and due are scored only on items that were found. Precision is found items over items listed. Run with [`python scripts/evaluate.py`](scripts/evaluate.py). API backend, faster-whisper large-v3-turbo, Qwen2.5-7B-Instruct (Q4_K_M) behind a local llama.cpp server, sherpa-onnx speaker labels, 8-core CPU (15 GB RAM, no GPU), 12 November 2026. Per-meeting times were 93, 101 and 191 seconds. The two models together used about 14 GB of RAM. The raw table is in [`docs/eval.md`](docs/eval.md). Ground truth is in [`samples/`](samples/).
+
+On the same machine, the Hugging Face backend with Whisper `small` and Qwen2.5-1.5B-Instruct found 9 of 10 action items (6/9 owners, 6/9 dues, 9/14 precision). Transcript error was higher on the Chinese and mixed meetings (CER 6.3%, MER 6.3%; English WER stayed 0.6%). Times were 31–36 seconds. The raw table is in [`docs/eval-hf.md`](docs/eval-hf.md).
+
+## Why it matters
+
+A transcript you still have to read is only half the job. A list of action items, each tied to a speaker and a spoken due date, is something a person can check and then use — and because every item has to quote a transcript line, the notes do not invent tasks. They can still leave things out, and a due date can be missed, as the table above shows.
+
+It fits anywhere a team already records meetings and types the follow-ups by hand. The backend can be a hosted API or open models on your own machine; speaker labels always run locally. The rest of the pipeline stays the same.
 
 ## Quickstart
 
-Python 3.11 or newer, and [ffmpeg](https://ffmpeg.org) on the `PATH` (it reads mp3, m4a, wav and video files).
+Python 3.11 or newer, and [ffmpeg](https://ffmpeg.org) on the `PATH`.
 
 ```bash
 git clone https://github.com/ModelShifts/meeting-notes
@@ -93,7 +84,7 @@ pip install -e ".[hf,demo]"      # open models; use ".[api,demo]" for the API ba
 cp .env.example .env              # choose a backend and models
 ```
 
-On a CPU-only machine, install the CPU build of PyTorch first (`pip install torch --index-url https://download.pytorch.org/whl/cpu`) and set `MS_WHISPER_MODEL=small` and `MS_HF_MODEL=Qwen/Qwen2.5-1.5B-Instruct` in `.env`. `MS_HF_DTYPE=bfloat16` halves the memory the 1.5B model needs (about 3 GB instead of 6 GB). Models download on first use.
+On a CPU-only machine, install the CPU build of PyTorch first (`pip install torch --index-url https://download.pytorch.org/whl/cpu`) and set `MS_WHISPER_MODEL=small` and `MS_HF_MODEL=Qwen/Qwen2.5-1.5B-Instruct` in `.env` if you need a smaller memory footprint. The headline figures above used `large-v3-turbo` and the 7B GGUF, which take about 14 GB of RAM together. Models download on first use.
 
 ```bash
 # transcript, speaker labels, summary and action items -> notes/<name>.md, .json and .srt
@@ -111,86 +102,58 @@ meeting-notes serve
 
 `--speakers 3` sets the number of speakers when you know it, and `--language zh` skips language detection.
 
-### Using the API backend
+`samples/` holds three synthetic meetings with a ground-truth file for each. All content in them is fictional. Tests use a mocked recogniser, speaker model and LLM, and need no downloads: `pip install -e ".[dev]" && pytest`.
 
-Any OpenAI-compatible endpoint works. In `.env`:
+## Backends
 
-```bash
-MS_BACKEND=api
-MS_API_BASE=https://your-provider.example/v1
-MS_API_KEY=your-api-key
-MS_MODEL=your-chat-model
-MS_STT_MODEL=your-speech-to-text-model   # leave empty to transcribe locally with faster-whisper
-```
+<details>
+<summary>Two interchangeable backends — API key or open models. Speaker labels always run locally. The rest of the pipeline does not change.</summary>
 
-`MS_STT_API_BASE` and `MS_STT_API_KEY` point transcription at a different endpoint when needed. Speaker labels are always computed locally.
+Pick one with `MS_BACKEND` in `.env`.
 
-To try it without a paid key, run an open model behind a local OpenAI-compatible server, for example [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), and the small speech-to-text server in `scripts/`:
+| | (a) Bring your own API key | (b) Open-source on Hugging Face |
+|---|---|---|
+| **What** | Any OpenAI-compatible endpoint | Open models, run locally |
+| **Set** | `MS_BACKEND=api`, `MS_API_BASE`, `MS_API_KEY`, `MS_MODEL` | `MS_BACKEND=hf`, optionally `MS_HF_MODEL` |
+| **Transcription** | `MS_STT_MODEL` on an `/audio/transcriptions` endpoint; if empty, local faster-whisper | faster-whisper, `MS_WHISPER_MODEL` |
+| **Good for** | Fastest start, hosted models | Data stays on your machines, no per-call cost |
+
+**Default open-source models**
+
+| Model | Used for | License |
+|---|---|---|
+| [`openai/whisper-large-v3`](https://huggingface.co/openai/whisper-large-v3) | transcription, run through the CTranslate2 copy [`Systran/faster-whisper-large-v3`](https://huggingface.co/Systran/faster-whisper-large-v3) (MIT) | Apache-2.0 |
+| [`openai/whisper-large-v3-turbo`](https://huggingface.co/openai/whisper-large-v3-turbo) | faster transcription (`MS_WHISPER_MODEL=large-v3-turbo`) | MIT |
+| [pyannote segmentation 3.0](https://huggingface.co/pyannote/segmentation-3.0), ONNX copy from [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx/releases/tag/speaker-segmentation-models) | speaker turns (default, downloaded from GitHub, no token) | MIT |
+| [3D-Speaker CAM++ zh/en](https://github.com/k2-fsa/sherpa-onnx/releases/tag/speaker-recongition-models) | voice embeddings for grouping turns by speaker (default) | Apache-2.0 |
+| [`pyannote/speaker-diarization-3.1`](https://huggingface.co/pyannote/speaker-diarization-3.1) | speaker labels, optional (gated: accept terms on Hugging Face, set `HF_TOKEN`) | MIT |
+| [`Qwen/Qwen2.5-7B-Instruct`](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) | summary and action items | Apache-2.0 |
+
+To try the API backend without a paid key, run an open model behind a local OpenAI-compatible server, for example [llama-cpp-python](https://github.com/abetlen/llama-cpp-python):
 
 ```bash
 pip install "llama-cpp-python[server]" huggingface_hub \
-  --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu   # prebuilt CPU wheels, no compiler needed
+  --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 hf download Qwen/Qwen2.5-7B-Instruct-GGUF --include "qwen2.5-7b-instruct-q4_k_m*.gguf" --local-dir models
 python -m llama_cpp.server --model models/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf \
   --model_alias qwen2.5-7b-instruct --n_ctx 8192 --port 8001
 # then: MS_API_BASE=http://127.0.0.1:8001/v1  MS_API_KEY=local  MS_MODEL=qwen2.5-7b-instruct
-#       MS_WHISPER_MODEL=large-v3-turbo   (local transcription), or a speech server:
-python scripts/stt_server.py --model large-v3-turbo --port 8002   # faster-whisper behind /v1/audio/transcriptions
-#       MS_STT_MODEL=whisper-large-v3-turbo  MS_STT_API_BASE=http://127.0.0.1:8002/v1
+#       MS_WHISPER_MODEL=large-v3-turbo   (local transcription)
 ```
 
-### Speech context
+`MS_STT_HOTWORDS` takes a comma-separated list of meeting terms given to Whisper as context. Due dates are kept as spoken (“Friday”, “下周二”) and are not turned into calendar dates. Owners are speaker labels (`S1`, `S2`) or a team named in the meeting.
 
-`MS_STT_HOTWORDS` takes a comma-separated list of terms that are often said in your meetings (product names, jargon, English words inside Chinese speech), and `MS_STT_PROMPT` a short free-text description. Both are given to Whisper as context, locally and on the API backend. They help with words that sound alike, such as "cache" and "cash". Both are empty by default.
+</details>
 
-On a CPU, `MS_WHISPER_COMPUTE=auto` runs Whisper in float32. int8 needs less memory but gave garbled large-v3 output in our tests.
+## Notes
 
-### Speaker labels
-
-By default speaker turns come from sherpa-onnx: the pyannote segmentation 3.0 model finds who speaks when, CAM++ voice embeddings group the turns, and each transcript word is given the speaker of its turn, so a sentence is split where the speaker changes. Speakers are named `S1`, `S2`, ... in order of first appearance. `MS_CLUSTER_THRESHOLD` (default 0.5) controls how readily two voices are treated as one when the number of speakers is not given.
-
-To use pyannote's own pipeline instead, accept the terms of [`pyannote/speaker-diarization-3.1`](https://huggingface.co/pyannote/speaker-diarization-3.1), then:
-
-```bash
-pip install -e ".[pyannote]"
-HF_TOKEN=your-hf-token MS_DIARIZER=pyannote meeting-notes run meeting.m4a
-```
-
-### Sample meetings and tests
-
-`samples/` holds three synthetic meetings with two speakers each: one in English, one in Chinese and one that mixes both in the same sentences. The speech was made with the open [Kokoro-82M v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh) text-to-speech model (Apache-2.0) through [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), with a different voice per speaker. Each recording has a ground-truth file with the script, exact turn times, action items and decisions. All content in them is fictional.
-
-```bash
-pip install -e ".[dev]"
-python scripts/make_samples.py   # regenerate samples/ from samples/scripts/*.yaml (downloads the TTS model)
-pytest                           # mocked recogniser, speaker model and LLM, no downloads
-python scripts/evaluate.py       # compare the configured backend with the ground truth
-```
-
-The evaluation reports the transcript error rate (WER for English, CER for Chinese, a mixed rate over Chinese characters and English words for the mixed meeting), the share of speech time given the right speaker, and how many scripted action items were found with the right owner and due date.
-
-## Limitations
-
-- The samples are short synthetic recordings of two text-to-speech voices with clean pauses between turns. The project has not been measured on real meetings, which have overlapping speech, noise and more speakers.
-- On a CPU, the larger models are slow (a few minutes for a one-minute meeting) and need about 14 GB of RAM together. The small models need far less but make more mistakes: Whisper small mishears some words (especially English words inside Chinese sentences), and Qwen2.5-1.5B sometimes gives a task to the wrong speaker, misses a task or lists a decision as a task.
-- Even with the larger models, the notes are not always right. Whisper still mishears some words in the samples (for example a Chinese homophone, or "bug" heard as "bar"), and the 7B model can miss a decision or a due date. Every action item and decision must quote a transcript line, and those whose quote is not found are dropped, so the notes do not invent tasks, but they can leave things out.
-- Owners are speaker labels (`S1`, `S2`) or a team named in the meeting. The tool does not know people's names.
-- Speaker labels assume one person speaks at a time. Overlapping speech is given to one speaker, and two similar voices can be merged into one label.
-- Due dates are kept as spoken ("Friday", "下周二") and are not turned into calendar dates.
-- Long meetings are summarised in parts of about 9,000 characters and the parts are then merged, so a decision that spans parts can be repeated or missed.
-- On the API backend, transcription has been tested with the local `scripts/stt_server.py` stand-in, not with a hosted speech API.
-- When the language is not set, the local path detects it and gives Whisper a short Chinese prompt for Chinese audio, which matters for mixed meetings. A hosted speech API gets that prompt only when `MS_LANGUAGE=zh` is set, so set it for Chinese or mixed meetings on the API backend.
-- Whisper can invent text in silent stretches. Known subtitle-credit lines are removed, but other invented lines can remain.
-- The web demo saves results under `.cache/results` and reuses them for the same file, speaker count and models.
+- Measured on three short synthetic meetings (two text-to-speech voices, clean pauses), not on real recordings.
+- The 10/10 figures are for faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M), which take about 14 GB of RAM together. The 1.5B setup has also been measured (9/10 recall).
+- Even with the larger models, a due date can be missed and a decision can be left out, as the table above shows.
+- Speaker labels assume one person speaks at a time. Overlapping speech is given to one speaker.
 
 ## Roadmap
 
-- [x] Repository scaffold and README
-- [x] Transcription with either backend
-- [x] Speaker labels
-- [x] Summary and action items
-- [x] Markdown, JSON and SRT export
-- [x] Web demo
 - [ ] Speaker names (map `S1`, `S2` to names given by the user)
 - [ ] Due dates resolved to calendar dates from the meeting date
 - [ ] Tested on real recordings with overlapping speech
@@ -200,4 +163,4 @@ The evaluation reports the transcript error rate (WER for English, CER for Chine
 
 [MIT](LICENSE) © Modelshifts Technology Pte. Ltd.
 
-<p align="center"><sub>Part of the <a href="https://modelshifts.com/work">Modelshifts</a> showcase.</sub></p>
+<p align="center"><sub>Part of the <a href="https://modelshifts.com/work">Modelshifts</a> showcase. November 2026, v1.</sub></p>

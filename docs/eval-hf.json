@@ -1,0 +1,384 @@
+[
+  {
+    "transcript": {
+      "file": "design-review-zh.wav",
+      "language": "zh",
+      "duration": 54.87,
+      "segments": [
+        {
+          "start": 0.18,
+          "end": 5.52,
+          "text": "大家好,今天我们评审一下新版设置页面的设计稿。",
+          "speaker": "S1"
+        },
+        {
+          "start": 6.36,
+          "end": 12.08,
+          "text": "我先说一下,现在的设置像太多了,用户很难找到通知开关。",
+          "speaker": "S2"
+        },
+        {
+          "start": 12.86,
+          "end": 19.44,
+          "text": "同意我们把通知相关的眩像放到第一屏,其他高级眩像折叠起来。",
+          "speaker": "S1"
+        },
+        {
+          "start": 20.2,
+          "end": 24.86,
+          "text": "好这样改动不大,我下周二之前把新的交互稿发给大家。",
+          "speaker": "S2"
+        },
+        {
+          "start": 25.7,
+          "end": 29.8,
+          "text": "另外深色模式,下一有几个按钮的对比度不够。",
+          "speaker": "S1"
+        },
+        {
+          "start": 30.18,
+          "end": 35.36,
+          "text": "这个我也注意到了,你能不能整理一份需要调整的颜色清单?",
+          "speaker": "S2"
+        },
+        {
+          "start": 35.96,
+          "end": 39.5,
+          "text": "可以我周四之前整理好颜色清单。",
+          "speaker": "S1"
+        },
+        {
+          "start": 40.14,
+          "end": 43.14,
+          "text": "还有开发那边问我们什么时候能订搞?",
+          "speaker": "S2"
+        },
+        {
+          "start": 43.84,
+          "end": 46.08,
+          "text": "我们订在下周五订搞。",
+          "speaker": "S1"
+        },
+        {
+          "start": 46.28,
+          "end": 51.36,
+          "text": "订搞之后,请测试团队在两周内完成可用性测试。",
+          "speaker": "S1"
+        },
+        {
+          "start": 52.32,
+          "end": 53.92,
+          "text": "好的,那就这么定了。",
+          "speaker": "S2"
+        }
+      ],
+      "speakers": [
+        "S1",
+        "S2"
+      ],
+      "asr_model": "faster-whisper small",
+      "diarizer": "sherpa-onnx (pyannote-segmentation-3.0 + CAM++)"
+    },
+    "summary": [
+      "将通知相关设置放在第一屏，其他高级设置折叠。",
+      "深色模式下按钮对比度不足，需整理颜色清单。",
+      "开发订在下周五，两周后进行可用性测试。"
+    ],
+    "decisions": [
+      "同意将通知相关设置放在第一屏，其他高级设置折叠。",
+      "深色模式下按钮对比度不足，需整理颜色清单。",
+      "开发订在下周五，两周后进行可用性测试。"
+    ],
+    "action_items": [
+      {
+        "task": "将通知相关的设置放在第一屏，其他高级设置折叠起来",
+        "owner": "S1",
+        "due": "下周二",
+        "at": 13.0
+      },
+      {
+        "task": "整理颜色清单并提交给S1",
+        "owner": "S2",
+        "due": null,
+        "at": 36.0
+      },
+      {
+        "task": "开发部门订搞",
+        "owner": "S1",
+        "due": "下周五",
+        "at": 44.0
+      },
+      {
+        "task": "测试团队在两周内完成可用性测试",
+        "owner": "测试团队",
+        "due": "两周内",
+        "at": 52.0
+      }
+    ],
+    "backend": "hf",
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "timings": {
+      "transcribe": 5.6,
+      "speakers": 3.3,
+      "notes": 26.8
+    }
+  },
+  {
+    "transcript": {
+      "file": "sprint-planning-mixed.wav",
+      "language": "zh+en",
+      "duration": 56.38,
+      "segments": [
+        {
+          "start": 0.14,
+          "end": 6.9,
+          "text": "我们开始这个sprint的planning吧,先看Bucklaw理优先级最高的三个ticket。",
+          "speaker": "S1"
+        },
+        {
+          "start": 8.06,
+          "end": 13.1,
+          "text": "第一个是Login页面的bug,用户在password诛错之后,没有提示。",
+          "speaker": "S2"
+        },
+        {
+          "start": 13.9,
+          "end": 17.06,
+          "text": "这个比较急,你今天能fix吗?",
+          "speaker": "S1"
+        },
+        {
+          "start": 18.04,
+          "end": 22.4,
+          "text": "可以我今天下班之前fix这个bug,然后提交call review。",
+          "speaker": "S2"
+        },
+        {
+          "start": 23.42,
+          "end": 28.32,
+          "text": "号第二个是Sir的performance,现在要等三秒多。",
+          "speaker": "S1"
+        },
+        {
+          "start": 29.04,
+          "end": 33.28,
+          "text": "我觉得要加一个 Cash,不过需要后端同事一起看。",
+          "speaker": "S2"
+        },
+        {
+          "start": 34.2,
+          "end": 39.74,
+          "text": "那我来约后端团队,这周三开个 Meeting 讨论 Cash 的方案。",
+          "speaker": "S1"
+        },
+        {
+          "start": 40.54,
+          "end": 44.48,
+          "text": "第三个是 Onboarding 的新流程,Design 还没有发能。",
+          "speaker": "S2"
+        },
+        {
+          "start": 45.22,
+          "end": 50.62,
+          "text": "那 Onboarding 我们放到下一个 Sprint,这个 Sprint 只做前两个。",
+          "speaker": "S1"
+        },
+        {
+          "start": 51.56,
+          "end": 55.32,
+          "text": "OK 我同意,我会在周五之前更新 Sprint Board。",
+          "speaker": "S2"
+        }
+      ],
+      "speakers": [
+        "S1",
+        "S2"
+      ],
+      "asr_model": "faster-whisper small",
+      "diarizer": "sherpa-onnx (pyannote-segmentation-3.0 + CAM++)"
+    },
+    "summary": [
+      "讨论了Sprint规划",
+      "确定了优先处理的三个问题",
+      "安排了后端团队会议讨论Cash方案"
+    ],
+    "decisions": [
+      "将Performance问题推迟到下一次Sprint",
+      "将Onboarding新流程推迟到下次Sprint",
+      "设计稿将在本周五之前更新Sprint板"
+    ],
+    "action_items": [
+      {
+        "task": "修复 Login 页面的 bug",
+        "owner": "S2",
+        "due": "今天下班之前",
+        "at": 8.0
+      },
+      {
+        "task": "添加 Cash 到 Sir 的 performance 中",
+        "owner": "S2",
+        "due": null,
+        "at": 18.0
+      },
+      {
+        "task": "安排后端团队讨论 Cash 方案",
+        "owner": "S1",
+        "due": "周三",
+        "at": 23.0
+      },
+      {
+        "task": "将 Onboarding 新流程推迟到下一个 sprint",
+        "owner": "S1",
+        "due": null,
+        "at": 41.0
+      },
+      {
+        "task": "更新 Sprint Board",
+        "owner": "S2",
+        "due": "周五之前",
+        "at": 52.0
+      }
+    ],
+    "backend": "hf",
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "timings": {
+      "transcribe": 4.0,
+      "speakers": 3.3,
+      "notes": 24.9
+    }
+  },
+  {
+    "transcript": {
+      "file": "weekly-sync-en.wav",
+      "language": "en",
+      "duration": 52.0,
+      "segments": [
+        {
+          "start": 0.14,
+          "end": 5.12,
+          "text": "Morning, let's keep this short. The main topic is the mobile release that was planned for this Friday.",
+          "speaker": "S1"
+        },
+        {
+          "start": 6.08,
+          "end": 11.3,
+          "text": "Right, the build is ready, but the offline sync still loses some changes when the network comes back.",
+          "speaker": "S2"
+        },
+        {
+          "start": 11.9,
+          "end": 13.18,
+          "text": "How long do you need to fix that?",
+          "speaker": "S1"
+        },
+        {
+          "start": 14.02,
+          "end": 18.04,
+          "text": "About two days, I will fix the offline sync bar and push a new build by Wednesday.",
+          "speaker": "S2"
+        },
+        {
+          "start": 18.92,
+          "end": 23.42,
+          "text": "Okay, then we move the release from Friday to next Tuesday. Is everyone fine with that?",
+          "speaker": "S1"
+        },
+        {
+          "start": 24.28,
+          "end": 25.92,
+          "text": "Yes, Tuesday works for me.",
+          "speaker": "S2"
+        },
+        {
+          "start": 26.64,
+          "end": 31.9,
+          "text": "Good, that is decided. I will update the release notes and share them with the support team by Thursday.",
+          "speaker": "S1"
+        },
+        {
+          "start": 32.68,
+          "end": 36.32,
+          "text": "Could you also ask the design team for the new pictures for the app store?",
+          "speaker": "S2"
+        },
+        {
+          "start": 37.16,
+          "end": 38.58,
+          "text": "Sure, I will ask them today.",
+          "speaker": "S1"
+        },
+        {
+          "start": 39.46,
+          "end": 43.06,
+          "text": "One more thing, the crash rate on older phones went up last week.",
+          "speaker": "S2"
+        },
+        {
+          "start": 43.3,
+          "end": 47.36,
+          "text": "I would like the test team to run the full regression suite on the new build before Monday.",
+          "speaker": "S2"
+        },
+        {
+          "start": 48.44,
+          "end": 51.1,
+          "text": "Agreed, let's meet again on Monday to confirm the release.",
+          "speaker": "S1"
+        }
+      ],
+      "speakers": [
+        "S1",
+        "S2"
+      ],
+      "asr_model": "faster-whisper small",
+      "diarizer": "sherpa-onnx (pyannote-segmentation-3.0 + CAM++)"
+    },
+    "summary": [
+      "The mobile release is moved from Friday to next Tuesday.",
+      "The offline sync issue is fixed by S2 within two days.",
+      "S2 asks the design team to provide new app store images."
+    ],
+    "decisions": [
+      "The release date is changed to next Tuesday."
+    ],
+    "action_items": [
+      {
+        "task": "Fix offline sync issue",
+        "owner": "S2",
+        "due": "Wednesday",
+        "at": 14.0
+      },
+      {
+        "task": "Move release date to next Tuesday",
+        "owner": null,
+        "due": null,
+        "at": 12.0
+      },
+      {
+        "task": "Update release notes and share with support team",
+        "owner": "S1",
+        "due": "Thursday",
+        "at": 24.0
+      },
+      {
+        "task": "Ask design team for new app store images",
+        "owner": "S2",
+        "due": null,
+        "at": 27.0
+      },
+      {
+        "task": "Run full regression suite on new build",
+        "owner": "test team",
+        "due": "Monday",
+        "at": 43.0
+      }
+    ],
+    "backend": "hf",
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "timings": {
+      "transcribe": 3.7,
+      "speakers": 3.2,
+      "notes": 24.3
+    }
+  }
+]
