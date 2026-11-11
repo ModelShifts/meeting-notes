@@ -1,0 +1,106 @@
+{
+  "file": "sprint-planning-mixed.wav",
+  "title": "Sprint planning",
+  "language": "mixed",
+  "duration": 65.67,
+  "speakers": [
+    "S1",
+    "S2"
+  ],
+  "synthetic": true,
+  "tts": "Kokoro-82M v1.1-zh via sherpa-onnx, voices S1=sid 3, S2=sid 66",
+  "turns": [
+    {
+      "speaker": "S1",
+      "start": 0.5,
+      "end": 6.59,
+      "text": "我们开始这个 sprint 的 planning 吧。先看 backlog 里优先级最高的三个 ticket。"
+    },
+    {
+      "speaker": "S2",
+      "start": 7.59,
+      "end": 15.28,
+      "text": "第一个是 login 页面的 bug，用户在 password 输错之后没有提示。"
+    },
+    {
+      "speaker": "S1",
+      "start": 16.01,
+      "end": 18.93,
+      "text": "这个比较急，你今天能 fix 吗？"
+    },
+    {
+      "speaker": "S2",
+      "start": 19.8,
+      "end": 26.82,
+      "text": "可以，我今天下班之前 fix 这个 bug，然后提交 code review。"
+    },
+    {
+      "speaker": "S1",
+      "start": 27.73,
+      "end": 32.16,
+      "text": "好。第二个是搜索的 performance，现在要等三秒多。"
+    },
+    {
+      "speaker": "S2",
+      "start": 32.96,
+      "end": 39.35,
+      "text": "我觉得要加一个 cache。不过需要后端同事一起看。"
+    },
+    {
+      "speaker": "S1",
+      "start": 40.26,
+      "end": 45.11,
+      "text": "那我来约后端团队，这周三开个 meeting 讨论 cache 的方案。"
+    },
+    {
+      "speaker": "S2",
+      "start": 45.96,
+      "end": 52.27,
+      "text": "第三个是 onboarding 的新流程，design 还没有 final。"
+    },
+    {
+      "speaker": "S1",
+      "start": 52.95,
+      "end": 57.81,
+      "text": "那 onboarding 我们放到下一个 sprint。这个 sprint 只做前两个。"
+    },
+    {
+      "speaker": "S2",
+      "start": 58.7,
+      "end": 64.78,
+      "text": "Okay，我同意。我会在周五之前更新 sprint board。"
+    }
+  ],
+  "action_items": [
+    {
+      "owner": "S2",
+      "task": "Fix the login page bug and submit it for code review",
+      "due": "今天下班之前",
+      "keywords": [
+        "login",
+        "登录"
+      ]
+    },
+    {
+      "owner": "S1",
+      "task": "约后端团队周三开会讨论 cache 方案",
+      "due": "周三",
+      "keywords": [
+        "cache",
+        "后端"
+      ]
+    },
+    {
+      "owner": "S2",
+      "task": "更新 sprint board",
+      "due": "周五",
+      "keywords": [
+        "board",
+        "看板"
+      ]
+    }
+  ],
+  "decisions": [
+    "Onboarding 放到下一个 sprint，这个 sprint 只做前两个 ticket。"
+  ]
+}
