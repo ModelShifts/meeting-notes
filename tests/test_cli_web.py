@@ -4,11 +4,27 @@ import pytest
 
 from meeting_notes import cli, pipeline
 
-from conftest import FakeASR, FakeLLM, TruthDiarizer, truth
+from conftest import FakeASR, TruthDiarizer, truth
 
 NOTES_REPLY = json.dumps({"summary": ["Release planning."], "decisions": ["Move the release to Tuesday."]})
-ITEMS_REPLY = json.dumps({"action_items": [{"task": "Fix the offline sync bug", "owner": "S2", "due": "Wednesday",
-                                            "at": "00:14"}]})
+
+
+class QuoteLLM:
+    """Returns one action item quoting the second turn of whichever sample is being summarised."""
+
+    name = "fake-llm"
+
+    def __init__(self, sample):
+        self.sample = sample
+        self.calls = 0
+
+    def complete(self, messages, max_new_tokens=None):
+        self.calls += 1
+        if self.calls % 2:
+            return NOTES_REPLY
+        quote = truth(self.sample)["turns"][1]["text"]
+        return json.dumps({"action_items": [{"task": "Fix the offline sync bug", "owner": "S2", "due": "Wednesday",
+                                             "quote": quote}]})
 
 
 @pytest.fixture
@@ -16,7 +32,7 @@ def fake_models(monkeypatch):
     def patch(name):
         monkeypatch.setattr(pipeline, "get_asr", lambda s: FakeASR(name))
         monkeypatch.setattr(pipeline, "_diarizer", lambda s: TruthDiarizer(name))
-        monkeypatch.setattr(pipeline, "get_llm", lambda s: FakeLLM([NOTES_REPLY, ITEMS_REPLY]))
+        monkeypatch.setattr(pipeline, "get_llm", lambda s: QuoteLLM(name))
         monkeypatch.setenv("MS_BACKEND", "api")
         monkeypatch.setenv("MS_API_BASE", "http://localhost:0/v1")
         monkeypatch.setenv("MS_MODEL", "fake")
@@ -29,7 +45,7 @@ def test_run_writes_all_formats(fake_models, samples, tmp_path, capsys):
     assert sorted(p.name for p in tmp_path.iterdir()) == ["weekly-sync-en.json", "weekly-sync-en.md",
                                                          "weekly-sync-en.srt"]
     out = capsys.readouterr().out
-    assert "1. Fix the offline sync bug (S2, due Wednesday, 00:14)" in out
+    assert "1. Fix the offline sync bug (S2, due Wednesday, 00:06)" in out
     data = json.loads((tmp_path / "weekly-sync-en.json").read_text())
     assert data["transcript"]["speakers"] == ["S1", "S2"] and data["transcript"]["diarizer"] == "truth-diarizer"
 
