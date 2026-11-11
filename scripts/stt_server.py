@@ -6,7 +6,9 @@
 
 It serves ``POST /v1/audio/transcriptions`` (multipart ``file``, ``model``, ``language``,
 ``response_format`` = ``json`` | ``text`` | ``verbose_json``) with faster-whisper and returns the
-same shape as the OpenAI API, including segment and word times for ``verbose_json``. It exists so
+same shape as the OpenAI API, including segment and word times for ``verbose_json``. Like the local
+path, it detects the language on speech first and gives Whisper a short simplified-Chinese prompt
+for Chinese audio. It exists so
 the api code path can be exercised without a paid key; it is not meant for production use.
 """
 
@@ -40,7 +42,11 @@ def build_app(model_size: str, threads: int):
                              language: str | None = Form(None), response_format: str = Form("json"),
                              prompt: str | None = Form(None)):
         audio = decode(await file.read())
-        segments, info = model.transcribe(audio, language=language or None, vad_filter=True, beam_size=5,
+        if not language:  # detect on speech first; letting transcribe() detect after VAD is less reliable
+            language, _, _ = model.detect_language(audio, vad_filter=True)
+        if language == "zh" and not prompt:  # same hint as the local path: keeps Chinese in simplified characters
+            prompt = "以下是会议记录，使用简体中文。"
+        segments, info = model.transcribe(audio, language=language, vad_filter=True, beam_size=5,
                                           condition_on_previous_text=False, word_timestamps=True,
                                           initial_prompt=prompt or None)
         segments = list(segments)
