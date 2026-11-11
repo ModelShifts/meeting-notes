@@ -15,6 +15,8 @@
 
 ## Features
 
+Planned for v1. Progress is tracked in the Roadmap below.
+
 - **Mixed-language transcription**: English, Chinese, or both in the same sentence.
 - **Speaker labels**: who said what, with timestamps.
 - **Summary**: the decisions and key points in a few lines.
