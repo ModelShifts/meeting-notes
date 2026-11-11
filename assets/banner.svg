@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="meeting-notes by Modelshifts">
+  <title>meeting-notes by Modelshifts</title>
+  <style>
+    .d{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 2;stroke-dashoffset:1.02;opacity:0;animation:draw 10s cubic-bezier(.6,.05,.3,1) infinite}
+    .u{stroke-dasharray:1 2;stroke-dashoffset:1.02;opacity:0;animation:draw 10s cubic-bezier(.6,.05,.3,1) infinite;animation-delay:2.4s}
+    .t{opacity:0;animation:fade 10s ease infinite}
+    @keyframes draw{0%{stroke-dashoffset:1.02;opacity:0}2%{opacity:1}16%{stroke-dashoffset:0}82%{stroke-dashoffset:0;opacity:1}92%,100%{stroke-dashoffset:0;opacity:0}}
+    @keyframes fade{0%{opacity:0}8%,84%{opacity:1}94%,100%{opacity:0}}
+    @media (prefers-reduced-motion: reduce){.d,.u,.t{animation:none;opacity:1;stroke-dashoffset:0}}
+  </style>
+  <rect width="1280" height="320" fill="#f3efe6"/>
+  <rect x="24.5" y="24.5" width="1231" height="271" fill="none" stroke="#1c1a17" stroke-width="1"/>
+  <path d="M64 24 v8 M64 296 v-8M104 24 v4 M104 296 v-4M144 24 v4 M144 296 v-4M184 24 v4 M184 296 v-4M224 24 v4 M224 296 v-4M264 24 v8 M264 296 v-8M304 24 v4 M304 296 v-4M344 24 v4 M344 296 v-4M384 24 v4 M384 296 v-4M424 24 v4 M424 296 v-4M464 24 v8 M464 296 v-8M504 24 v4 M504 296 v-4M544 24 v4 M544 296 v-4M584 24 v4 M584 296 v-4M624 24 v4 M624 296 v-4M664 24 v8 M664 296 v-8M704 24 v4 M704 296 v-4M744 24 v4 M744 296 v-4M784 24 v4 M784 296 v-4M824 24 v4 M824 296 v-4M864 24 v8 M864 296 v-8M904 24 v4 M904 296 v-4M944 24 v4 M944 296 v-4M984 24 v4 M984 296 v-4M1024 24 v4 M1024 296 v-4M1064 24 v8 M1064 296 v-8M1104 24 v4 M1104 296 v-4M1144 24 v4 M1144 296 v-4M1184 24 v4 M1184 296 v-4M1224 24 v4 M1224 296 v-4" stroke="#1c1a17" stroke-width="1" opacity=".55"/>
+  <path d="M300.5 24 V296" stroke="#1c1a17" stroke-width="1"/>
+  <!-- icon cell -->
+  <g fill="none" stroke="#d9d2c3" stroke-width="1">
+    <path d="M62 160 H262 M162 60 V260" stroke-dasharray="3 5"/>
+  </g>
+  <g transform="translate(62 60)">
+    <path class="d" style="animation-delay:0.15s" pathLength="1" d="M14 100 H30" stroke="#1c1a17" stroke-width="2.2"/>
+    <path class="d" style="animation-delay:0.37s" pathLength="1" d="M38 84 V116" stroke="#1c1a17" stroke-width="2.2"/>
+    <path class="d" style="animation-delay:0.59s" pathLength="1" d="M50 64 V136" stroke="#1c1a17" stroke-width="2.2"/>
+    <path class="d" style="animation-delay:0.81s" pathLength="1" d="M62 78 V122" stroke="#1c1a17" stroke-width="2.2"/>
+    <path class="d" style="animation-delay:1.03s" pathLength="1" d="M74 40 V160" stroke="#8a3a24" stroke-width="2.6"/>
+    <path class="d" style="animation-delay:1.25s" pathLength="1" d="M86 56 V144" stroke="#8a3a24" stroke-width="2.6"/>
+    <path class="d" style="animation-delay:1.47s" pathLength="1" d="M98 30 V170" stroke="#8a3a24" stroke-width="2.6"/>
+    <path class="d" style="animation-delay:1.69s" pathLength="1" d="M110 60 V140" stroke="#8a3a24" stroke-width="2.6"/>
+    <path class="d" style="animation-delay:1.91s" pathLength="1" d="M122 46 V154" stroke="#8a3a24" stroke-width="2.6"/>
+    <path class="d" style="animation-delay:2.13s" pathLength="1" d="M134 76 V124" stroke="#1c1a17" stroke-width="2.2"/>
+    <path class="d" style="animation-delay:2.35s" pathLength="1" d="M146 66 V134" stroke="#1c1a17" stroke-width="2.2"/>
+    <path class="d" style="animation-delay:2.57s" pathLength="1" d="M158 86 V114" stroke="#1c1a17" stroke-width="2.2"/>
+    <path class="d" style="animation-delay:2.79s" pathLength="1" d="M170 100 H186" stroke="#1c1a17" stroke-width="2.2"/>
+  </g>
+  <!-- title -->
+  <text x="352" y="152" font-family="Georgia, 'Times New Roman', Times, serif" font-size="68" fill="#1c1a17" letter-spacing="-0.5">meeting-notes</text>
+  <path class="u" pathLength="1" d="M354 184 H474" stroke="#8a3a24" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <text class="t" style="animation-delay:2.6s" x="354" y="226" font-family="'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" fill="#8a3a24" letter-spacing="3">SPEECH</text>
+  <!-- title block -->
+  <g font-family="'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#1c1a17" letter-spacing="2">
+    <path d="M980.5 224.5 H1255.5 M980.5 224.5 V295.5 M1150.5 224.5 V295.5 M980.5 260.5 H1255.5" stroke="#1c1a17" stroke-width="1" fill="none"/>
+    <text x="996" y="247">MODELSHIFTS</text>
+    <text x="1166" y="247">04 / 06</text>
+    <text x="996" y="283" fill="#8a3a24">IN DEVELOPMENT</text>
+    <text x="1166" y="283">MIT</text>
+  </g>
+</svg>
