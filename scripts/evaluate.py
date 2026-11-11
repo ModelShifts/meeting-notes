@@ -4,6 +4,11 @@
     python scripts/evaluate.py                  # run the configured backend on every sample
     python scripts/evaluate.py --out eval.json  # also save the raw results
 
+On a machine without room for the speech model and the LLM at the same time, run it in two steps:
+
+    python scripts/evaluate.py --transcribe-only --transcripts runs/   # speech model only
+    python scripts/evaluate.py --transcripts runs/                     # LLM only, reads the saved transcripts
+
 Metrics per meeting:
 - Error rate of the transcript: WER for English, CER for Chinese, and for mixed meetings a
   mixed error rate (MER) over Chinese characters plus English words. Text is lower-cased,
@@ -29,7 +34,8 @@ import jiwer
 from opencc import OpenCC
 
 from meeting_notes.config import Settings
-from meeting_notes.pipeline import run
+from meeting_notes.models import Notes, Transcript
+from meeting_notes.pipeline import make_notes, transcribe
 
 ROOT = Path(__file__).resolve().parent.parent
 _T2S = OpenCC("t2s")
@@ -105,6 +111,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--samples", default=str(ROOT / "samples"))
     ap.add_argument("--out")
+    ap.add_argument("--transcripts", help="folder for transcripts: reused when present, written when missing")
+    ap.add_argument("--transcribe-only", action="store_true", help="stop after writing the transcripts")
     args = ap.parse_args()
     settings = Settings.from_env()
     settings.validate()
@@ -114,12 +122,26 @@ def main() -> int:
         truth = json.loads(truth_file.read_text())
         audio = truth_file.with_name(truth["file"])
         t0 = time.time()
+        saved = Path(args.transcripts) / f"{audio.stem}.transcript.json" if args.transcripts else None
         try:
-            notes = run(audio, settings, num_speakers=0)
+            timings: dict[str, float] = {}
+            if saved and saved.exists():
+                data = json.loads(saved.read_text())
+                transcript, timings = Transcript.model_validate(data["transcript"]), data["timings"]
+            else:
+                transcript = transcribe(audio, settings, 0, timings)
+                if saved:
+                    saved.parent.mkdir(parents=True, exist_ok=True)
+                    saved.write_text(json.dumps({"transcript": transcript.model_dump(), "timings": timings},
+                                                indent=2, ensure_ascii=False) + "\n")
+            if args.transcribe_only:
+                print(f"{audio.name}: transcript saved to {saved}", file=sys.stderr)
+                continue
+            notes: Notes = make_notes(transcript, settings, timings)
         except Exception as exc:  # report and keep going
-            rows.append((audio.name, truth["language"], "-", "-", "-", "-", "-", "-", f"error: {exc}"))
+            rows.append((audio.name, truth["language"], "-", "-", "-", "-", "-", "-", "-", "-", "-", f"error: {exc}"))
             continue
-        dt = time.time() - t0
+        dt = sum(notes.timings.values())
         data = notes.model_dump()
         raw.append(data)
         segs = data["transcript"]["segments"]
@@ -133,20 +155,26 @@ def main() -> int:
         rows.append((audio.name, truth["language"], f"{metric_name(truth['language'])} {100 * er:.1f}%",
                      f"{100 * spk_acc:.0f}%", f"{len(data['transcript']['speakers'])}/{len(truth['speakers'])}",
                      f"{m['found']}/{m['total']}", f"{m['owner_ok']}/{m['found']}", f"{m['due_ok']}/{m['found']}",
-                     f"{m['precise']}/{m['predicted']}", f"{dt:.0f}", "; ".join(m["notes"]) or "-"))
+                     f"{m['precise']}/{m['predicted']}", f"{len(data['decisions'])}/{len(truth['decisions'])}", f"{dt:.0f}", "; ".join(m["notes"]) or "-"))
         print(f"{audio.name}: {rows[-1][2]}, speakers {rows[-1][3]}, items {rows[-1][5]}, {dt:.0f}s", file=sys.stderr)
 
-    print(f"\nBackend: {settings.backend} · transcription: {settings.asr_name} · notes: {settings.model_name} · "
-          f"speaker labels: {settings.diarizer}\n")
+    if args.transcribe_only:
+        return 0
+    asr = raw[0]["transcript"]["asr_model"] if raw else settings.asr_name
+    print(f"\nBackend: {settings.backend} · transcription: {asr} · notes: {settings.model_name} · "
+          f"speaker labels: {raw[0]['transcript']['diarizer'] if raw else settings.diarizer}")
+    if settings.stt_prompt or settings.stt_hotwords:
+        print(f"\nSpeech context: prompt={settings.stt_prompt!r} hotwords={settings.stt_hotwords!r}")
+    print()
     print("| Sample | Lang | Transcript error | Speaker time correct | Speakers found | Action items found | "
-          "Owner right | Due right | Precision | Time (s) | Notes |")
-    print("|---|---|---|---|---|---|---|---|---|---|---|")
+          "Owner right | Due right | Precision | Decisions (listed/script) | Time (s) | Notes |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|")
     for r in rows:
         print("| " + " | ".join(str(x) for x in r) + " |")
     if sums["total"]:
         print(f"| **All** | | | | | **{sums['found']}/{sums['total']} ({100 * sums['found'] / sums['total']:.0f}% recall)** "
               f"| {sums['owner_ok']}/{sums['found']} | {sums['due_ok']}/{sums['found']} | "
-              f"{sums['precise']}/{sums['predicted']} | | |")
+              f"{sums['precise']}/{sums['predicted']} | | | |")
     if args.out:
         Path(args.out).write_text(json.dumps(raw, indent=2, ensure_ascii=False) + "\n")
     return 0
