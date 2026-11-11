@@ -40,7 +40,7 @@
     <path d="M980.5 224.5 H1255.5 M980.5 224.5 V295.5 M1150.5 224.5 V295.5 M980.5 260.5 H1255.5" stroke="#1c1a17" stroke-width="1" fill="none"/>
     <text x="996" y="247">MODELSHIFTS</text>
     <text x="1166" y="247">04 / 06</text>
-    <text x="996" y="283" fill="#8a3a24">IN DEVELOPMENT</text>
+    <text x="996" y="283" fill="#8a3a24">V1</text>
     <text x="1166" y="283">MIT</text>
   </g>
 </svg>
