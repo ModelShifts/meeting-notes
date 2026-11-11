@@ -1,0 +1,23 @@
+# Synthetic meeting script. Everything here is fictional.
+title: Weekly release sync
+language: en
+voices: {S1: 0, S2: 62}   # Kokoro v1.1 speaker ids: af_maple (female), zm_013 (male)
+turns:
+  - [S1, "Morning. Let's keep this short. The main topic is the mobile release that was planned for this Friday."]
+  - [S2, "Right. The build is ready, but the offline sync still loses some changes when the network comes back."]
+  - [S1, "How long do you need to fix that?"]
+  - [S2, "About two days. I will fix the offline sync bug and push a new build by Wednesday."]
+  - [S1, "Okay. Then we move the release from Friday to next Tuesday. Is everyone fine with that?"]
+  - [S2, "Yes, Tuesday works for me."]
+  - [S1, "Good, that is decided. I will update the release notes and share them with the support team by Thursday."]
+  - [S2, "Could you also ask the design team for the new pictures for the app store?"]
+  - [S1, "Sure, I will ask them today."]
+  - [S2, "One more thing. The crash rate on older phones went up last week. I would like the test team to run the full regression suite on the new build before Monday."]
+  - [S1, "Agreed. Let's meet again on Monday to confirm the release."]
+action_items:
+  - {owner: S2, task: "Fix the offline sync bug and push a new build", due: "Wednesday", keywords: [sync]}
+  - {owner: S1, task: "Update the release notes and share them with the support team", due: "Thursday", keywords: [release notes]}
+  - {owner: S1, task: "Ask the design team for the new pictures for the app store", due: "today", keywords: [picture, image, screenshot]}
+  - {owner: test team, task: "Run the full regression suite on the new build", due: "Monday", keywords: [regression]}
+decisions:
+  - "The release moves from Friday to next Tuesday."

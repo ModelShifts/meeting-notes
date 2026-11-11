@@ -1,0 +1,21 @@
+# Synthetic meeting script with Chinese and English in the same sentences. Everything here is fictional.
+title: Sprint planning
+language: mixed
+voices: {S1: 6, S2: 62}   # Kokoro v1.1 speaker ids: zf_004 (female), zm_013 (male)
+turns:
+  - [S1, "我们开始这个 sprint 的 planning 吧。先看 backlog 里优先级最高的三个 ticket。"]
+  - [S2, "第一个是 login 页面的 bug，用户在 password 输错之后没有提示。"]
+  - [S1, "这个比较急，你今天能 fix 吗？"]
+  - [S2, "可以，我今天下班之前 fix 这个 bug，然后提交 code review。"]
+  - [S1, "好。第二个是 search 的 performance，现在要等三秒多。"]
+  - [S2, "我觉得要加一个 cache。不过需要后端同事一起看。"]
+  - [S1, "那我来约后端团队，这周三开个 meeting 讨论 cache 的方案。"]
+  - [S2, "第三个是 onboarding 的新流程，design 还没有 final。"]
+  - [S1, "那 onboarding 我们放到下一个 sprint。这个 sprint 只做前两个。"]
+  - [S2, "Okay，我同意。我会在周五之前更新 sprint board。"]
+action_items:
+  - {owner: S2, task: "Fix the login page bug and submit it for code review", due: "今天下班之前", keywords: [login, 登录]}
+  - {owner: S1, task: "约后端团队周三开会讨论 cache 方案", due: "周三", keywords: [cache, 后端]}
+  - {owner: S2, task: "更新 sprint board", due: "周五", keywords: [board, 看板]}
+decisions:
+  - "Onboarding 放到下一个 sprint，这个 sprint 只做前两个 ticket。"

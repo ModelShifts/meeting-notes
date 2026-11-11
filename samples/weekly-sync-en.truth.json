@@ -1,0 +1,119 @@
+{
+  "file": "weekly-sync-en.wav",
+  "title": "Weekly release sync",
+  "language": "en",
+  "duration": 52.0,
+  "speakers": [
+    "S1",
+    "S2"
+  ],
+  "synthetic": true,
+  "tts": "Kokoro-82M v1.1-zh via sherpa-onnx, voices S1=sid 0, S2=sid 62",
+  "turns": [
+    {
+      "speaker": "S1",
+      "start": 0.5,
+      "end": 5.32,
+      "text": "Morning. Let's keep this short. The main topic is the mobile release that was planned for this Friday."
+    },
+    {
+      "speaker": "S2",
+      "start": 6.08,
+      "end": 11.36,
+      "text": "Right. The build is ready, but the offline sync still loses some changes when the network comes back."
+    },
+    {
+      "speaker": "S1",
+      "start": 12.02,
+      "end": 13.38,
+      "text": "How long do you need to fix that?"
+    },
+    {
+      "speaker": "S2",
+      "start": 14.07,
+      "end": 18.31,
+      "text": "About two days. I will fix the offline sync bug and push a new build by Wednesday."
+    },
+    {
+      "speaker": "S1",
+      "start": 19.08,
+      "end": 23.62,
+      "text": "Okay. Then we move the release from Friday to next Tuesday. Is everyone fine with that?"
+    },
+    {
+      "speaker": "S2",
+      "start": 24.49,
+      "end": 26.04,
+      "text": "Yes, Tuesday works for me."
+    },
+    {
+      "speaker": "S1",
+      "start": 26.91,
+      "end": 32.14,
+      "text": "Good, that is decided. I will update the release notes and share them with the support team by Thursday."
+    },
+    {
+      "speaker": "S2",
+      "start": 32.83,
+      "end": 36.49,
+      "text": "Could you also ask the design team for the new pictures for the app store?"
+    },
+    {
+      "speaker": "S1",
+      "start": 37.13,
+      "end": 38.74,
+      "text": "Sure, I will ask them today."
+    },
+    {
+      "speaker": "S2",
+      "start": 39.71,
+      "end": 47.56,
+      "text": "One more thing. The crash rate on older phones went up last week. I would like the test team to run the full regression suite on the new build before Monday."
+    },
+    {
+      "speaker": "S1",
+      "start": 48.51,
+      "end": 51.32,
+      "text": "Agreed. Let's meet again on Monday to confirm the release."
+    }
+  ],
+  "action_items": [
+    {
+      "owner": "S2",
+      "task": "Fix the offline sync bug and push a new build",
+      "due": "Wednesday",
+      "keywords": [
+        "sync"
+      ]
+    },
+    {
+      "owner": "S1",
+      "task": "Update the release notes and share them with the support team",
+      "due": "Thursday",
+      "keywords": [
+        "release notes"
+      ]
+    },
+    {
+      "owner": "S1",
+      "task": "Ask the design team for the new pictures for the app store",
+      "due": "today",
+      "keywords": [
+        "picture",
+        "image",
+        "screenshot"
+      ]
+    },
+    {
+      "owner": "test team",
+      "task": "Run the full regression suite on the new build",
+      "due": "Monday",
+      "keywords": [
+        "regression"
+      ]
+    }
+  ],
+  "decisions": [
+    "The release moves from Friday to next Tuesday."
+  ]
+}
