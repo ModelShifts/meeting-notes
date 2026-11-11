@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, v1]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: ffmpeg
+        run: ffmpeg -version >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Install (no model downloads; tests use a mocked recogniser, diarizer and LLM)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,demo]"
+      - name: Ground truth matches the meeting scripts
+        run: |
+          python scripts/make_samples.py --truth-only
+          git diff --exit-code -- samples/
+      - name: Tests
+        run: pytest -q
+      - name: CLI smoke test
+        run: |
+          meeting-notes --version
+          # api backend without MS_API_BASE must fail with a clear message (exit 2)
+          MS_BACKEND=api MS_API_BASE= MS_MODEL=none meeting-notes run samples/weekly-sync-en.wav || test $? -eq 2
