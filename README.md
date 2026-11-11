@@ -79,10 +79,6 @@ pip install -e .
 meeting-notes run weekly-sync.m4a --out notes/
 ```
 
-## Try it
-
-> **Coming soon.** A hosted demo will be linked here and on [modelshifts.com/work](https://modelshifts.com/work).
-
 ## Roadmap
 
 - [x] Repository scaffold and README
