@@ -34,6 +34,14 @@ def is_hallucination(text: str, no_speech_prob: float = 0.0, avg_logprob: float 
     return no_speech_prob > 0.6 and avg_logprob < -1.0
 
 
+def build_prompt(language: str | None, extra: str = "") -> str | None:
+    """Whisper's initial prompt: the simplified-Chinese hint for Chinese audio plus the user's own context."""
+    parts = [ZH_PROMPT] if language == "zh" else []
+    if extra.strip():
+        parts.append(extra.strip())
+    return " ".join(parts) or None
+
+
 class ASR(Protocol):
     name: str
 
@@ -55,8 +63,11 @@ class LocalWhisper:
         device = "cuda" if cuda else "cpu"
         compute = settings.whisper_compute
         if compute == "auto":
-            compute = "float16" if cuda else "int8"
+            # int8 is smaller and faster, but in our tests it made large-v3 garble mixed Chinese and English
+            compute = "float16" if cuda else "float32"
         self.name = f"faster-whisper {settings.whisper_model}"
+        self.prompt = settings.stt_prompt
+        self.hotwords = settings.stt_hotwords
         self.model = WhisperModel(settings.whisper_model, device=device, compute_type=compute,
                                   cpu_threads=settings.threads)
 
@@ -70,7 +81,8 @@ class LocalWhisper:
             vad_filter=True,  # Silero VAD: skips silence, which avoids repeated or dropped lines
             condition_on_previous_text=False,
             word_timestamps=True,
-            initial_prompt=ZH_PROMPT if language == "zh" else None,
+            initial_prompt=build_prompt(language, self.prompt),
+            hotwords=self.hotwords or None,
         )
         out = []
         for s in segments:
@@ -90,11 +102,15 @@ class APITranscriber:
         self.client = OpenAI(base_url=settings.stt_api_base or settings.api_base,
                              api_key=settings.stt_api_key or settings.api_key or "not-needed")
         self.name = settings.stt_model
+        # speech APIs take one prompt, so the terms list is appended to it
+        terms = settings.stt_hotwords.strip()
+        self.prompt = " ".join(x for x in (settings.stt_prompt.strip(), f"Terms: {terms}." if terms else "") if x)
 
     def transcribe(self, audio: np.ndarray, language: str | None = None) -> tuple[list[Segment], str]:
         kwargs = {"language": language} if language else {}
-        if language == "zh":
-            kwargs["prompt"] = ZH_PROMPT
+        prompt = build_prompt(language, self.prompt)
+        if prompt:
+            kwargs["prompt"] = prompt
         resp = self.client.audio.transcriptions.create(
             model=self.name,
             file=("meeting.wav", to_wav_bytes(audio), "audio/wav"),
@@ -159,7 +175,8 @@ _ASR: dict[tuple, ASR] = {}
 
 
 def get_asr(settings: Settings) -> ASR:
-    key = (settings.backend, settings.stt_model, settings.whisper_model, settings.api_base, settings.stt_api_base)
+    key = (settings.backend, settings.stt_model, settings.whisper_model, settings.api_base, settings.stt_api_base,
+           settings.stt_prompt, settings.stt_hotwords)
     if key not in _ASR:
         if settings.backend == "api" and settings.stt_model:
             _ASR[key] = APITranscriber(settings)

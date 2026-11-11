@@ -41,6 +41,8 @@ class Settings:
     whisper_model: str = DEFAULT_WHISPER_MODEL
     whisper_compute: str = "auto"  # auto | int8 | float16 | float32
     language: str = ""  # empty = detect; "en", "zh", ...
+    stt_prompt: str = ""  # optional context for speech recognition, written like the speech (Whisper initial prompt)
+    stt_hotwords: str = ""  # optional comma-separated terms that come up in your meetings (product names, jargon)
     zh_script: str = "simplified"  # simplified | traditional | keep
     # speaker labels
     diarizer: str = "auto"  # auto | sherpa | pyannote | none
@@ -69,6 +71,8 @@ class Settings:
             whisper_model=_env("MS_WHISPER_MODEL", DEFAULT_WHISPER_MODEL),
             whisper_compute=_env("MS_WHISPER_COMPUTE", "auto").lower(),
             language=_env("MS_LANGUAGE").lower(),
+            stt_prompt=_env("MS_STT_PROMPT"),
+            stt_hotwords=_env("MS_STT_HOTWORDS"),
             zh_script=_env("MS_ZH_SCRIPT", "simplified").lower(),
             diarizer=_env("MS_DIARIZER", "auto").lower(),
             num_speakers=int(_env("MS_NUM_SPEAKERS", "0") or 0),

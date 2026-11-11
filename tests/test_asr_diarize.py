@@ -1,4 +1,4 @@
-from meeting_notes.asr import describe_language, fix_chinese_script, is_hallucination, parse_verbose_json
+from meeting_notes.asr import build_prompt, describe_language, fix_chinese_script, is_hallucination, parse_verbose_json
 from meeting_notes.diarize import Turn, assign_speakers
 from meeting_notes.models import Segment, Word
 
@@ -68,3 +68,45 @@ def test_assign_speakers_absorbs_tiny_fragments():
 def test_no_diarizer_gives_one_speaker():
     segs, _ = FakeASR("weekly-sync-en").transcribe(None)
     assert {s.speaker for s in assign_speakers(segs, [])} == {"S1"}
+
+
+def test_speech_prompt_combines_chinese_hint_and_user_context():
+    assert build_prompt("en") is None
+    assert build_prompt("en", "Weekly sync of the payments team.") == "Weekly sync of the payments team."
+    assert build_prompt("zh", "术语：sprint、cache").startswith("以下是会议记录") and "cache" in build_prompt("zh", "术语：sprint、cache")
+
+
+def test_api_transcriber_sends_prompt_and_terms(monkeypatch):
+    from meeting_notes import asr as asr_mod
+    from meeting_notes.config import Settings
+    import numpy as np
+
+    sent = {}
+
+    class FakeTranscriptions:
+        def create(self, **kw):
+            sent.update(kw)
+            return {"language": "zh", "segments": [{"start": 0, "end": 1, "text": "好的"}]}
+
+    class FakeClient:
+        def __init__(self, **kw):
+            self.audio = type("A", (), {"transcriptions": FakeTranscriptions()})()
+
+    import openai
+    monkeypatch.setattr(openai, "OpenAI", FakeClient)
+    s = Settings(backend="api", api_base="http://x/v1", model="m", stt_model="stt", stt_api_base="http://y/v1",
+                 stt_hotwords="sprint, cache")
+    t = asr_mod.APITranscriber(s)
+    segs, lang = t.transcribe(np.zeros(1600, np.float32), language="zh")
+    assert lang == "zh" and segs[0].text == "好的"
+    assert sent["model"] == "stt" and sent["language"] == "zh" and "Terms: sprint, cache." in sent["prompt"]
+
+
+def test_a_fragment_that_opens_a_segment_joins_the_rest_of_it():
+    # word timestamps run early, so the first word of S2's sentence falls inside S1's turn
+    words = [Word(start=0.0, end=0.4, text="Then"), Word(start=0.5, end=0.9, text=" I"),
+             Word(start=1.0, end=1.5, text=" will"), Word(start=1.6, end=2.0, text=" go.")]
+    seg = Segment(start=0.0, end=2.0, text="Then I will go.", words=words)
+    first = Segment(start=-2.0, end=-0.5, text="Hello.", words=[Word(start=-2.0, end=-0.5, text="Hello.")])
+    out = assign_speakers([first, seg], [Turn(-2.0, 0.45, 0), Turn(0.45, 2.0, 1)])
+    assert [(s.speaker, s.text) for s in out] == [("S1", "Hello."), ("S2", "Then I will go.")]

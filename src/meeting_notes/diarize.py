@@ -153,6 +153,24 @@ def _join(words: list[Word]) -> str:
     return "".join(w.text for w in words).strip()
 
 
+def _absorb_leading(pieces):
+    out = []
+    i = 0
+    while i < len(pieces):
+        spk, seg, idx = pieces[i]
+        nxt = pieces[i + 1] if i + 1 < len(pieces) else None
+        opens = not out or out[-1][2] != idx
+        if (opens and nxt and nxt[2] == idx and nxt[0] != spk and 0 < len(seg.words) <= 2
+                and len(nxt[1].words) > len(seg.words)):
+            words = seg.words + nxt[1].words
+            out.append((nxt[0], Segment(start=seg.start, end=nxt[1].end, text=_join(words), words=words), idx))
+            i += 2
+            continue
+        out.append((spk, seg, idx))
+        i += 1
+    return out
+
+
 def assign_speakers(segments: list[Segment], turns: list[Turn]) -> list[Segment]:
     """Label each segment with a speaker; split a segment where its words change speaker.
 
@@ -162,28 +180,31 @@ def assign_speakers(segments: list[Segment], turns: list[Turn]) -> list[Segment]
         for s in segments:
             s.speaker = "S1"
         return segments
-    pieces: list[tuple[int | None, Segment]] = []
-    for seg in segments:
+    pieces: list[tuple[int | None, Segment, int]] = []  # (speaker, piece, index of the ASR segment)
+    for i, seg in enumerate(segments):
         if not seg.words:
-            pieces.append((_speaker_at(seg.start, seg.end, turns), seg))
+            pieces.append((_speaker_at(seg.start, seg.end, turns), seg, i))
             continue
         run: list[Word] = []
         run_spk = None
         for w in seg.words:
             spk = _speaker_at(w.start, w.end, turns)
             if run and spk != run_spk:
-                pieces.append((run_spk, Segment(start=run[0].start, end=run[-1].end, text=_join(run), words=run)))
+                pieces.append((run_spk, Segment(start=run[0].start, end=run[-1].end, text=_join(run), words=run), i))
                 run = []
             run_spk = spk
             run.append(w)
         if run:
             if len(run) == len(seg.words):
-                pieces.append((run_spk, seg))
+                pieces.append((run_spk, seg, i))
             else:
-                pieces.append((run_spk, Segment(start=run[0].start, end=run[-1].end, text=_join(run), words=run)))
-    # absorb one- or two-word fragments into their neighbour: they are usually boundary noise
+                pieces.append((run_spk, Segment(start=run[0].start, end=run[-1].end, text=_join(run), words=run), i))
+    # One- or two-word fragments are usually boundary noise. Word timestamps tend to run early,
+    # so a fragment that opens an ASR segment joins the rest of that segment; any other fragment
+    # joins the piece before it.
+    pieces = _absorb_leading(pieces)
     cleaned: list[tuple[int | None, Segment]] = []
-    for spk, seg in pieces:
+    for spk, seg, _ in pieces:
         if cleaned and spk != cleaned[-1][0] and 0 < len(seg.words) <= 2 and seg.start - cleaned[-1][1].end < 0.3:
             prev_spk, prev = cleaned[-1]
             merged = prev.words + seg.words

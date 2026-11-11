@@ -25,12 +25,12 @@ def decode(data: bytes) -> np.ndarray:
     return np.frombuffer(raw, dtype=np.float32).copy()
 
 
-def build_app(model_size: str, threads: int):
+def build_app(model_size: str, threads: int, compute: str = "float32"):
     from fastapi import FastAPI, File, Form, UploadFile
     from fastapi.responses import PlainTextResponse
     from faster_whisper import WhisperModel
 
-    model = WhisperModel(model_size, device="cpu", compute_type="int8", cpu_threads=threads)
+    model = WhisperModel(model_size, device="cpu", compute_type=compute, cpu_threads=threads)
     app = FastAPI(title="local speech-to-text")
 
     @app.get("/v1/models")
@@ -44,8 +44,9 @@ def build_app(model_size: str, threads: int):
         audio = decode(await file.read())
         if not language:  # detect on speech first; letting transcribe() detect after VAD is less reliable
             language, _, _ = model.detect_language(audio, vad_filter=True)
-        if language == "zh" and not prompt:  # same hint as the local path: keeps Chinese in simplified characters
-            prompt = "以下是会议记录，使用简体中文。"
+        hint = "以下是会议记录，使用简体中文。"
+        if language == "zh" and hint not in (prompt or ""):  # same hint as the local path: simplified characters
+            prompt = f"{hint} {prompt}" if prompt else hint
         segments, info = model.transcribe(audio, language=language, vad_filter=True, beam_size=5,
                                           condition_on_previous_text=False, word_timestamps=True,
                                           initial_prompt=prompt or None)
@@ -73,8 +74,10 @@ def main() -> None:
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8002)
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument("--compute", default="float32",
+                    help="CTranslate2 compute type (default: float32; int8 garbled large-v3 output in our CPU tests)")
     args = ap.parse_args()
-    uvicorn.run(build_app(args.model, args.threads), host=args.host, port=args.port)
+    uvicorn.run(build_app(args.model, args.threads, args.compute), host=args.host, port=args.port)
 
 
 if __name__ == "__main__":

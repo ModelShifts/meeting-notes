@@ -89,7 +89,7 @@ class ResultCache:
 
     def _path(self, path: str | Path, key: str, settings: Settings) -> Path:
         tag = hashlib.sha256(
-            f"{key}|{settings.backend}|{settings.model_name}|{settings.asr_name}|{settings.diarizer}".encode()
+            f"{key}|{settings.backend}|{settings.model_name}|{settings.asr_name}|{settings.diarizer}|{settings.stt_prompt}|{settings.stt_hotwords}".encode()
         ).hexdigest()[:16]
         return self.root / f"{file_digest(path)}-notes-{tag}.json"
 
