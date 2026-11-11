@@ -35,8 +35,8 @@ flowchart TB
   S --> O["Markdown · JSON · SRT"]:::ink
   subgraph BK["Backend · pick one"]
     direction LR
-    A["<b>(a) Your API key</b><br/>OpenAI-compatible<br/>speech + LLM APIs"]:::rust
-    H["<b>(b) Hugging Face</b><br/>whisper-large-v3 · pyannote 3.1<br/>Qwen2.5-7B-Instruct"]:::rust
+    BKA["<b>(a) Your API key</b><br/>OpenAI-compatible<br/>speech + LLM APIs"]:::rust
+    BKH["<b>(b) Hugging Face</b><br/>whisper-large-v3 · pyannote 3.1<br/>Qwen2.5-7B-Instruct"]:::rust
   end
   BK -.-> T
   BK -.-> S
