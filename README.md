@@ -24,7 +24,8 @@
 ## Architecture
 
 ```mermaid
-flowchart LR
+%%{init: {"theme":"base","flowchart":{"curve":"basis","wrappingWidth":260},"themeVariables":{"fontFamily":"Georgia, Times New Roman, serif","fontSize":"14px","primaryColor":"#f3efe6","primaryTextColor":"#1c1a17","primaryBorderColor":"#1c1a17","lineColor":"#1c1a17","clusterBkg":"#faf7f0","clusterBorder":"#8a3a24","titleColor":"#8a3a24","edgeLabelBackground":"#f3efe6"}}}%%
+flowchart TB
   A["Recording<br/>mp3 · m4a · wav"]:::ink --> N["Normalize audio"]:::ink
   N --> T["Transcribe<br/>EN · ZH · mixed"]:::ink
   N --> SP["Speaker labels"]:::ink
@@ -32,14 +33,15 @@ flowchart LR
   SP --> M
   M --> S["Summarize +<br/>extract action items"]:::ink
   S --> O["Markdown · JSON · SRT"]:::ink
-  subgraph BK["Backend: pick one, same interface"]
-    direction TB
-    A["(a) Bring your own API key<br/>hosted OpenAI-compatible speech + LLM APIs"]:::rust
-    H["(b) Open-source on Hugging Face<br/>whisper-large-v3 · pyannote 3.1 · Qwen2.5-7B-Instruct"]:::rust
+  subgraph BK["Backend · pick one"]
+    direction LR
+    A["<b>(a) Your API key</b><br/>OpenAI-compatible<br/>speech + LLM APIs"]:::rust
+    H["<b>(b) Hugging Face</b><br/>whisper-large-v3 · pyannote 3.1<br/>Qwen2.5-7B-Instruct"]:::rust
   end
   BK -.-> T
   BK -.-> S
 
+  classDef cl fill:#faf7f0,stroke:#8a3a24,stroke-dasharray:4 3,color:#8a3a24;
   classDef ink fill:#f3efe6,stroke:#1c1a17,color:#1c1a17,stroke-width:1px;
   classDef rust fill:#f3efe6,stroke:#8a3a24,color:#8a3a24,stroke-width:1.5px;
 ```
