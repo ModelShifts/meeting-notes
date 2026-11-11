@@ -26,7 +26,7 @@ All five features below work in v1. See [Limitations](#limitations) for what the
 <p align="center">
   <img src="assets/demo.gif" alt="Web demo: a synthetic mixed Chinese and English meeting is selected, the transcript appears with two speaker labels and a timeline, and the summary and action items are listed" width="100%">
 </p>
-<p align="center"><sub>Web demo on a synthetic meeting (<a href="assets/demo.mp4">MP4</a>). Results in the recording were computed earlier by faster-whisper small and Qwen2.5-1.5B-Instruct on CPU and loaded from the demo's result cache.</sub></p>
+<p align="center"><sub>Web demo on a synthetic meeting (<a href="assets/demo.mp4">MP4</a>). Results in the recording were computed earlier on a CPU by faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M GGUF behind a local llama-cpp-python server, API backend), with a general list of meeting terms in `MS_STT_HOTWORDS`, and loaded from the demo's result cache.</sub></p>
 
 ## Architecture
 
@@ -79,7 +79,7 @@ Speaker labels always run locally with sherpa-onnx, which needs no account or to
 | [`pyannote/speaker-diarization-3.1`](https://huggingface.co/pyannote/speaker-diarization-3.1) | speaker labels, optional (gated: accept terms on Hugging Face, set `HF_TOKEN`) | MIT |
 | [`Qwen/Qwen2.5-7B-Instruct`](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) | summary and action items | Apache-2.0 |
 
-On a machine without a GPU, set `MS_WHISPER_MODEL=small` and `MS_HF_MODEL=Qwen/Qwen2.5-1.5B-Instruct`. large-v3 and the 7B model are slow on a CPU, and the 7B model needs a GPU or a lot of memory.
+On a machine without a GPU, `MS_WHISPER_MODEL=large-v3-turbo` (about 7 GB of RAM) and the 7B model as a 4-bit GGUF behind a local server (about 6.5 GB, see [Using the API backend](#using-the-api-backend)) run at a few minutes per short meeting. With less memory, use `MS_WHISPER_MODEL=small` and `MS_HF_MODEL=Qwen/Qwen2.5-1.5B-Instruct`, which make more mistakes.
 
 ## Quickstart
 
@@ -130,12 +130,20 @@ To try it without a paid key, run an open model behind a local OpenAI-compatible
 ```bash
 pip install "llama-cpp-python[server]" huggingface_hub \
   --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu   # prebuilt CPU wheels, no compiler needed
-hf download Qwen/Qwen2.5-1.5B-Instruct-GGUF qwen2.5-1.5b-instruct-q4_k_m.gguf --local-dir models
-python -m llama_cpp.server --model models/qwen2.5-1.5b-instruct-q4_k_m.gguf --n_ctx 8192 --port 8001
-python scripts/stt_server.py --model small --port 8002   # faster-whisper behind /v1/audio/transcriptions
-# then: MS_API_BASE=http://127.0.0.1:8001/v1  MS_API_KEY=local  MS_MODEL=qwen2.5-1.5b-instruct-q4_k_m
-#       MS_STT_MODEL=whisper-small  MS_STT_API_BASE=http://127.0.0.1:8002/v1
+hf download Qwen/Qwen2.5-7B-Instruct-GGUF --include "qwen2.5-7b-instruct-q4_k_m*.gguf" --local-dir models
+python -m llama_cpp.server --model models/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf \
+  --model_alias qwen2.5-7b-instruct --n_ctx 8192 --port 8001
+# then: MS_API_BASE=http://127.0.0.1:8001/v1  MS_API_KEY=local  MS_MODEL=qwen2.5-7b-instruct
+#       MS_WHISPER_MODEL=large-v3-turbo   (local transcription), or a speech server:
+python scripts/stt_server.py --model large-v3-turbo --port 8002   # faster-whisper behind /v1/audio/transcriptions
+#       MS_STT_MODEL=whisper-large-v3-turbo  MS_STT_API_BASE=http://127.0.0.1:8002/v1
 ```
+
+### Speech context
+
+`MS_STT_HOTWORDS` takes a comma-separated list of terms that are often said in your meetings (product names, jargon, English words inside Chinese speech), and `MS_STT_PROMPT` a short free-text description. Both are given to Whisper as context, locally and on the API backend. They help with words that sound alike, such as "cache" and "cash". Both are empty by default.
+
+On a CPU, `MS_WHISPER_COMPUTE=auto` runs Whisper in float32. int8 needs less memory but gave garbled large-v3 output in our tests.
 
 ### Speaker labels
 
@@ -164,7 +172,8 @@ The evaluation reports the transcript error rate (WER for English, CER for Chine
 ## Limitations
 
 - The samples are short synthetic recordings of two text-to-speech voices with clean pauses between turns. The project has not been measured on real meetings, which have overlapping speech, noise and more speakers.
-- On a CPU, Whisper large-v3 and the 7B model are slow. The small models are usable on a CPU but make more mistakes: Whisper small mishears some words (especially English words inside Chinese sentences), and Qwen2.5-1.5B sometimes gives a task to the wrong speaker, misses a task or lists a decision as a task.
+- On a CPU, the larger models are slow (a few minutes for a one-minute meeting) and need about 14 GB of RAM together. The small models need far less but make more mistakes: Whisper small mishears some words (especially English words inside Chinese sentences), and Qwen2.5-1.5B sometimes gives a task to the wrong speaker, misses a task or lists a decision as a task.
+- Even with the larger models, the notes are not always right. Whisper still mishears some words in the samples (for example a Chinese homophone, or "bug" heard as "bar"), and the 7B model can miss a decision or a due date. Every action item and decision must quote a transcript line, and those whose quote is not found are dropped, so the notes do not invent tasks, but they can leave things out.
 - Owners are speaker labels (`S1`, `S2`) or a team named in the meeting. The tool does not know people's names.
 - Speaker labels assume one person speaks at a time. Overlapping speech is given to one speaker, and two similar voices can be merged into one label.
 - Due dates are kept as spoken ("Friday", "下周二") and are not turned into calendar dates.
