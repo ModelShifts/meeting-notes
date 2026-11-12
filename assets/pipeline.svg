@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="t d">
+  <title id="t">How meeting-notes works</title>
+  <desc id="d">A recording is transcribed (English, Chinese, or both). Speaker labels are assigned locally. A model writes a summary and a list of action items, each with an owner and a due date when one was said. The result is Markdown, JSON and subtitles.</desc>
+  <style>
+    .bg{fill:#faf7f0}
+    .card{fill:#ffffff;stroke:#1c1915;stroke-width:1.5}
+    .hot{fill:#ffffff;stroke:#7c3420;stroke-width:2}
+    .k{font:600 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em;fill:#7c3420}
+    .h{font:500 23px Georgia,'Times New Roman',serif;fill:#1c1915;letter-spacing:-.01em}
+    .s{font:14px Georgia,'Times New Roman',serif;fill:#4e4942}
+    .m{font:13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#1c1915}
+    .wire{fill:none;stroke:#1c1915;stroke-width:1.5}
+    .flow{fill:none;stroke:#7c3420;stroke-width:3;stroke-linecap:round;stroke-dasharray:14 600;stroke-dashoffset:614}
+    .branch{fill:none;stroke:#1c1915;stroke-width:1.5;stroke-dasharray:5 5}
+    .tag{fill:#f3efe4;stroke:#d3cbb8}
+    @media (prefers-reduced-motion:no-preference){
+      .flow{animation:run 4.8s cubic-bezier(.55,.1,.35,1) infinite}
+      .f2{animation-delay:1.2s}.f3{animation-delay:2.4s}.f4{animation-delay:3.6s}
+      .pulse{animation:pulse 4.8s ease-in-out infinite}
+    }
+    @keyframes run{0%{stroke-dashoffset:614}35%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes pulse{0%,70%,100%{stroke-width:2}82%{stroke-width:4}}
+</style>
+  <rect class="bg" x="0" y="0" width="1200" height="420" rx="18"/>
+  <text class="k" x="40" y="48">PIPELINE · ONE COMMAND, FIVE STEPS</text>
+  <path class="wire" d="M222 160H252"/><path class="flow" d="M222 160H252"/><path d="M246 154l8 6-8 6" fill="none" stroke="#1c1915" stroke-width="1.5"/><path class="wire" d="M450 160H480"/><path class="flow f2" d="M450 160H480"/><path d="M474 154l8 6-8 6" fill="none" stroke="#1c1915" stroke-width="1.5"/><path class="wire" d="M680 160H710"/><path class="flow f3" d="M680 160H710"/><path d="M704 154l8 6-8 6" fill="none" stroke="#1c1915" stroke-width="1.5"/><path class="wire" d="M908 160H938"/><path class="flow f4" d="M908 160H938"/><path d="M932 154l8 6-8 6" fill="none" stroke="#1c1915" stroke-width="1.5"/>
+    <g transform="translate(40 80)">
+    <rect class="card" width="182" height="160" rx="10"/>
+    <g transform="translate(20 28)" fill="none" stroke="#1c1915" stroke-width="1.3">
+      <path d="M8 6v28a12 12 0 0 0 24 0V6"/><path d="M0 22h8M40 22h8"/><path d="M16 0h8v10h-8z"/>
+    </g>
+    <text class="k" x="20" y="98">01 INPUT</text>
+    <text class="h" x="20" y="126">A recording</text>
+    <text class="s" x="20" y="148">mp3 · m4a · wav</text>
+  </g>  <g transform="translate(254 80)">
+    <rect class="card" width="196" height="160" rx="10"/>
+    <g transform="translate(20 26)">
+      <text class="m" x="0" y="14">S1  00:04</text>
+      <text class="m" x="0" y="34" fill="#4e4942">Let’s close the</text>
+      <text class="m" x="0" y="50" fill="#4e4942">sprint today.</text>
+    </g>
+    <text class="k" x="20" y="98">02 TRANSCRIBE</text>
+    <text class="h" x="20" y="126">Words + times</text>
+    <text class="s" x="20" y="148">EN · ZH · mixed</text>
+  </g>  <g transform="translate(482 80)">
+    <rect class="card" width="198" height="160" rx="10"/>
+    <g transform="translate(20 28)" fill="none" stroke="#1c1915" stroke-width="1.3">
+      <circle cx="12" cy="16" r="10"/><circle cx="36" cy="16" r="10" stroke="#7c3420"/>
+      <path d="M0 40h24M24 40h24" stroke="#7c3420"/>
+    </g>
+    <text class="k" x="20" y="98">03 SPEAKERS</text>
+    <text class="h" x="20" y="126">Who said what</text>
+    <text class="s" x="20" y="148">labels run locally</text>
+  </g>  <g transform="translate(712 80)">
+    <rect class="card" width="196" height="160" rx="10"/>
+    <g transform="translate(20 28)">
+      <text class="m" x="0" y="14">[ ] Update the board</text>
+      <text class="m" x="0" y="34" fill="#7c3420">S2 · Friday</text>
+    </g>
+    <text class="k" x="20" y="98">04 NOTES</text>
+    <text class="h" x="20" y="126">Summary + items</text>
+    <text class="s" x="20" y="148">owner and due date</text>
+  </g>  <g transform="translate(940 80)">
+    <rect class="hot pulse" width="220" height="160" rx="10"/>
+    <g transform="translate(20 24)">
+      <text class="m" x="0" y="14"># Weekly sync</text>
+      <text class="m" x="0" y="34" fill="#7c3420">- Ask design for</text>
+      <text class="m" x="0" y="50" fill="#7c3420">  pictures · S1</text>
+    </g>
+    <text class="k" x="20" y="98">05 OUTPUT</text>
+    <text class="h" x="20" y="126">Markdown · JSON</text>
+    <text class="s" x="20" y="148">and SRT subtitles</text>
+  </g>
+  
+  <text class="s" x="40" y="392">Backend: your OpenAI-compatible API, or open models from Hugging Face (faster-whisper, Qwen2.5). Speaker labels always run locally.</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="180" viewBox="0 0 1200 180" role="img" aria-labelledby="t d">
+  <title id="t">Evaluation results</title>
+  <desc id="d">10 of 10 action items found, 10 of 10 owners right, 9 of 10 due dates right. Faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M), three meetings.</desc>
+  <style>
+    .bg{fill:#faf7f0}
+    .num{font:500 52px Georgia,'Times New Roman',serif;fill:#7c3420;letter-spacing:-1.5px}
+    .lbl{font:500 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#4e4942;letter-spacing:1.2px}
+    .rule{stroke:#d3cbb8;stroke-width:1}
+  </style>
+  <rect class="bg" width="1200" height="180" rx="16"/>
+  <text class="num" x="60" y="88">10 / 10</text><text class="lbl" x="60" y="122">ACTION ITEMS FOUND</text>
+  <line class="rule" x1="400" y1="40" x2="400" y2="140"/>
+  <text class="num" x="440" y="88">10 / 10</text><text class="lbl" x="440" y="122">OWNERS RIGHT</text>
+  <line class="rule" x1="800" y1="40" x2="800" y2="140"/>
+  <text class="num" x="840" y="88">9 / 10</text><text class="lbl" x="840" y="122">DUE DATES RIGHT</text>
+</svg>
