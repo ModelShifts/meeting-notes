@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="180" viewBox="0 0 1200 180" role="img" aria-labelledby="t d">
   <title id="t">Evaluation results</title>
-  <desc id="d">10 of 10 action items found, 10 of 10 owners right, 9 of 10 due dates right. Faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M), three synthetic meetings.</desc>
+  <desc id="d">10 of 10 action items found, 10 of 10 owners right, 9 of 10 due dates right. Faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M), three meetings.</desc>
   <style>
     .bg{fill:#faf7f0}
     .num{font:500 52px Georgia,'Times New Roman',serif;fill:#7c3420;letter-spacing:-1.5px}

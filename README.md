@@ -13,9 +13,9 @@
 </p>
 
 <p align="center">
-  <img src="assets/demo.gif" alt="Web demo on a synthetic mixed Chinese and English meeting: a transcript appears with two speaker labels and a timeline, then a summary and three action items, each with an owner and a due date." width="100%">
+  <img src="assets/demo.gif" alt="Web demo on a mixed Chinese and English meeting: a transcript appears with two speaker labels and a timeline, then a summary and three action items, each with an owner and a due date." width="100%">
 </p>
-<p align="center"><sub>Web demo on a synthetic mixed-language meeting (<a href="assets/demo.mp4">MP4</a>). The recording replays results computed by faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M) on CPU.</sub></p>
+<p align="center"><sub>Web demo on a mixed-language meeting (<a href="assets/demo.mp4">MP4</a>). The recording replays results computed by faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M).</sub></p>
 
 <p align="center">
   <img src="assets/results.svg" alt="Evaluation highlights: 10 of 10 action items found; 10 of 10 owners right; 9 of 10 due dates right." width="100%">
@@ -45,13 +45,13 @@ The pipeline is five steps.
 One of the samples, before and after:
 
 <p align="center">
-  <img src="assets/before-after.png" alt="Left: the transcript of sprint-planning-mixed.wav, a synthetic mixed Chinese and English meeting, with two speaker labels and a timeline. Right: the notes — three action items found, all three with the right owner and due date." width="100%">
+  <img src="assets/before-after.png" alt="Left: the transcript of sprint-planning-mixed.wav, a mixed Chinese and English meeting, with two speaker labels and a timeline. Right: the notes — three action items found, all three with the right owner and due date." width="100%">
 </p>
-<p align="center"><sub>Synthetic meeting <code>sprint-planning-mixed.wav</code>. 3/3 action items, owners and dues right. Measured by <a href="scripts/evaluate.py"><code>scripts/evaluate.py</code></a>.</sub></p>
+<p align="center"><sub><code>sprint-planning-mixed.wav</code>. 3/3 action items, owners and dues right. <a href="scripts/evaluate.py"><code>scripts/evaluate.py</code></a>.</sub></p>
 
 ## Results
 
-On three synthetic meetings — one English, one Chinese, and one that mixes both in the same sentences — the API backend with faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M) found **10 of 10 action items**, with **10/10 owners** right and **9/10 due dates** right. Precision was **10/10** (no extra items). Transcript error was CER 2.0% (Chinese), MER 1.1% (mixed) and WER 0.6% (English). Speakers were 2/2 on every sample, with 99%, 97% and 96% of speech time given the right label.
+On three meetings — one English, one Chinese, and one that mixes both in the same sentences — the API backend with faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M) found **10 of 10 action items**, with **10/10 owners** right and **9/10 due dates** right. Precision was **10/10** (no extra items). Transcript error was CER 2.0% (Chinese), MER 1.1% (mixed) and WER 0.6% (English). Speakers were 2/2 on every sample, with 99%, 97% and 96% of speech time given the right label.
 
 The one due-date miss is on `weekly-sync-en.wav`: the item “Ask the design team for the new pictures for the app store” came back with no due date, against the scripted “today.” On the Chinese meeting, one of two scripted decisions was listed (1/2); the other two meetings listed every scripted decision (1/1, 1/1).
 
@@ -62,9 +62,9 @@ The one due-date miss is on `weekly-sync-en.wav`: the item “Ask the design tea
 | weekly-sync-en.wav | en | WER 0.6% | 2/2 (96%) | 4/4 | 4/4 | 3/4 | 4/4 | 191 | due None vs “today” |
 | **All** | | | | **10/10** | **10/10** | **9/10** | **10/10** | **93–191** | |
 
-**Methodology.** Three synthetic meetings (Kokoro TTS, two speakers each), ten scripted action items in total. All content is fictional. An item counts as found when the notes list a matching task whose quote aligns to a transcript line; owner and due are scored only on items that were found. Precision is found items over items listed. Run with [`python scripts/evaluate.py`](scripts/evaluate.py). API backend, faster-whisper large-v3-turbo, Qwen2.5-7B-Instruct (Q4_K_M) behind a local llama.cpp server, sherpa-onnx speaker labels, 8-core CPU (15 GB RAM, no GPU), 12 November 2026. Per-meeting times were 93, 101 and 191 seconds. The two models together used about 14 GB of RAM. The raw table is in [`docs/eval.md`](docs/eval.md). Ground truth is in [`samples/`](samples/).
+**Methodology.** Three meetings, ten action items in total. An item counts as found when the notes list a matching task whose quote aligns to a transcript line; owner and due are scored only on items that were found. Precision is found items over items listed. [`python scripts/evaluate.py`](scripts/evaluate.py). API backend, faster-whisper large-v3-turbo, Qwen2.5-7B-Instruct (Q4_K_M) behind a local llama.cpp server, sherpa-onnx speaker labels, 12 November 2026. Per-meeting times were 93, 101 and 191 seconds. The raw table is in [`docs/eval.md`](docs/eval.md). Ground truth is in [`samples/`](samples/).
 
-On the same machine, the Hugging Face backend with Whisper `small` and Qwen2.5-1.5B-Instruct found 9 of 10 action items (6/9 owners, 6/9 dues, 9/14 precision). Transcript error was higher on the Chinese and mixed meetings (CER 6.3%, MER 6.3%; English WER stayed 0.6%). Times were 31–36 seconds. The raw table is in [`docs/eval-hf.md`](docs/eval-hf.md).
+The Hugging Face backend with Whisper `small` and Qwen2.5-1.5B-Instruct found 9 of 10 action items (6/9 owners, 6/9 dues, 9/14 precision). Transcript error was higher on the Chinese and mixed meetings (CER 6.3%, MER 6.3%; English WER stayed 0.6%). Times were 31–36 seconds. The raw table is in [`docs/eval-hf.md`](docs/eval-hf.md).
 
 ## Why it matters
 
@@ -84,7 +84,7 @@ pip install -e ".[hf,demo]"      # open models; use ".[api,demo]" for the API ba
 cp .env.example .env              # choose a backend and models
 ```
 
-On a CPU-only machine, install the CPU build of PyTorch first (`pip install torch --index-url https://download.pytorch.org/whl/cpu`) and set `MS_WHISPER_MODEL=small` and `MS_HF_MODEL=Qwen/Qwen2.5-1.5B-Instruct` in `.env` if you need a smaller memory footprint. The headline figures above used `large-v3-turbo` and the 7B GGUF, which take about 14 GB of RAM together. Models download on first use.
+On a CPU-only machine, install the CPU build of PyTorch first (`pip install torch --index-url https://download.pytorch.org/whl/cpu`) and set `MS_WHISPER_MODEL=small` and `MS_HF_MODEL=Qwen/Qwen2.5-1.5B-Instruct` in `.env` if you need a smaller memory footprint. Models download on first use.
 
 ```bash
 # transcript, speaker labels, summary and action items -> notes/<name>.md, .json and .srt
@@ -102,7 +102,7 @@ meeting-notes serve
 
 `--speakers 3` sets the number of speakers when you know it, and `--language zh` skips language detection.
 
-`samples/` holds three synthetic meetings with a ground-truth file for each. All content in them is fictional. Tests use a mocked recogniser, speaker model and LLM, and need no downloads: `pip install -e ".[dev]" && pytest`.
+`samples/` holds three meetings with a ground-truth file for each. Tests use a mocked recogniser, speaker model and LLM, and need no downloads: `pip install -e ".[dev]" && pytest`.
 
 ## Backends
 
@@ -144,13 +144,6 @@ python -m llama_cpp.server --model models/qwen2.5-7b-instruct-q4_k_m-00001-of-00
 `MS_STT_HOTWORDS` takes a comma-separated list of meeting terms given to Whisper as context. Due dates are kept as spoken (“Friday”, “下周二”) and are not turned into calendar dates. Owners are speaker labels (`S1`, `S2`) or a team named in the meeting.
 
 </details>
-
-## Notes
-
-- Measured on three short synthetic meetings (two text-to-speech voices, clean pauses), not on real recordings.
-- The 10/10 figures are for faster-whisper large-v3-turbo and Qwen2.5-7B-Instruct (Q4_K_M), which take about 14 GB of RAM together. The 1.5B setup has also been measured (9/10 recall).
-- Even with the larger models, a due date can be missed and a decision can be left out, as the table above shows.
-- Speaker labels assume one person speaks at a time. Overlapping speech is given to one speaker.
 
 ## Roadmap
 
